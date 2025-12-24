@@ -11,13 +11,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh 'npm ci'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'npm test -- --watch=false'
+                sh 'npm test'
             }
         }
 
