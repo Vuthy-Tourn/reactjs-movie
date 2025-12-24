@@ -1,7 +1,12 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'node24'   // must match the name from Global Tool Configuration
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -11,6 +16,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
+                // 'node' and 'npm' are automatically in PATH when using tools { nodejs }
                 sh 'npm ci'
             }
         }
@@ -26,6 +32,14 @@ pipeline {
                 sh 'npm run build'
             }
         }
+
+        stage('Check Node') {
+            steps {
+                sh 'node -v'
+                sh 'npm -v'
+            }
+        }
+
     }
 
     post {
