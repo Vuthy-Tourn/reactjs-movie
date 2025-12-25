@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'nodejs-lts'   // must match the name from Global Tool Configuration
+        nodejs 'node20'  
     }
 
     stages {
