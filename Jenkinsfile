@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'node20'
+        nodejs 'node20'  
     }
 
     stages {
@@ -22,39 +22,54 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh 'npm test || true'
+                sh 'npm test'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                // sh 'npm run build'
+                sh """
+                    docker build -t jenkins-react-pipeline . 
+                """
             }
         }
 
-        stage('Deploy to Nginx (Localhost)') {
-            steps {
-                sh '''
-                rm -rf /var/www/react-app/*
-                cp -r dist/* /var/www/react-app/
-                '''
+       stage("Deploy"){
+            steps{
+                sh"""
+                docker stop reactjs-cont || true 
+                docker rm reactjs-cont || true 
+
+
+                docker run -dp 3000:80 \
+                    --name reactjs-cont \
+                    jenkins-react-pipeline
+                """
+
             }
         }
 
-        stage('Check Node') {
-            steps {
-                sh 'node -v'
-                sh 'npm -v'
-            }
-        }
+        // stage("Add Domain Name"){
+        //     steps{
+        //         sh """
+
+        //         which certbot
+        //         certbot --version 
+        //         # write reverse proxy config 
+        //         # sudo nginx -s reload 
+        //         """ 
+        //     }
+        // }
+
     }
 
     post {
         success {
-            echo '✅ React CI/CD Successful - App deployed to Nginx'
+            echo '✅ React CI Pipeline Successful'
         }
         failure {
-            echo '❌ React CI/CD Failed'
+            echo '❌ React CI Pipeline Failed'
         }
     }
 }
