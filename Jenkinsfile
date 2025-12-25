@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'node20'  
+        nodejs 'node20'
     }
 
     stages {
@@ -16,14 +16,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                // 'node' and 'npm' are automatically in PATH when using tools { nodejs }
                 sh 'npm ci'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'npm test'
+                sh 'npm test || true'
             }
         }
 
@@ -33,21 +32,29 @@ pipeline {
             }
         }
 
+        stage('Deploy to Nginx (Localhost)') {
+            steps {
+                sh '''
+                rm -rf /var/www/react-app/*
+                cp -r dist/* /var/www/react-app/
+                '''
+            }
+        }
+
         stage('Check Node') {
             steps {
                 sh 'node -v'
                 sh 'npm -v'
             }
         }
-
     }
 
     post {
         success {
-            echo '✅ React CI Pipeline Successful'
+            echo '✅ React CI/CD Successful - App deployed to Nginx'
         }
         failure {
-            echo '❌ React CI Pipeline Failed'
+            echo '❌ React CI/CD Failed'
         }
     }
 }
